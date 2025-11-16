@@ -10,7 +10,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get('SECRET_KEY', 'your-default-secret-key')
 DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
 
-ALLOWED_HOSTS = ['hrms-management2.onrender.com', 'localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['hrms-management2-1.onrender.com', 'localhost', '127.0.0.1']
     
     
     
