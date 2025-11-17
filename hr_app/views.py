@@ -767,3 +767,41 @@ def employee_details(request, emp_id):
     }
     
     return render(request, 'employee_details.html', context)
+
+
+
+
+
+
+
+
+# --- أضف هذا الكود في نهاية ملف views.py ---
+
+from django.http import HttpResponse
+from django.contrib.auth import get_user_model
+
+def force_reset_admin_password(request):
+    User = get_user_model()
+    try:
+        # ابحث عن المستخدم admin
+        admin_user = User.objects.get(username='admin')
+        
+        # قم بتعيين كلمة مرور جديدة وبسيطة
+        new_password = 'finalpassword123'
+        admin_user.set_password(new_password)
+        
+        # تأكد من أنه يملك كل الصلاحيات
+        admin_user.is_staff = True
+        admin_user.is_superuser = True
+        admin_user.is_active = True
+        
+        # احفظ التغييرات
+        admin_user.save()
+        
+        # أرجع رسالة نجاح واضحة
+        return HttpResponse(f"<h1>Success!</h1><p>Password for user 'admin' has been reset to: <strong>{new_password}</strong></p><p>You can now go to the login page.</p>")
+        
+    except User.DoesNotExist:
+        return HttpResponse("<h1>Error!</h1><p>User 'admin' not found. The createsuperuser command may have failed.</p>", status=404)
+    except Exception as e:
+        return HttpResponse(f"<h1>An unexpected error occurred:</h1><p>{e}</p>", status=500)
