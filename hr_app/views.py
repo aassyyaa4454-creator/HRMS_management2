@@ -776,32 +776,35 @@ def employee_details(request, emp_id):
 
 
 # --- أضف هذا الكود في نهاية ملف views.py ---
+# --- استبدل الدالة القديمة بهذا الكود المحسن ---
 
 from django.http import HttpResponse
 from django.contrib.auth import get_user_model
 
 def force_reset_admin_password(request):
     User = get_user_model()
+    username = 'admin'
+    password = 'finalpassword123'
+    email = 'admin@example.com'
+    
     try:
-        # ابحث عن المستخدم admin
-        admin_user = User.objects.get(username='admin')
+        # حاول العثور على المستخدم. إذا لم يكن موجوداً، قم بإنشائه.
+        user, created = User.objects.get_or_create(
+            username=username, 
+            defaults={'email': email, 'is_staff': True, 'is_superuser': True}
+        )
         
-        # قم بتعيين كلمة مرور جديدة وبسيطة
-        new_password = 'finalpassword123'
-        admin_user.set_password(new_password)
+        # سواء تم إنشاؤه الآن أو كان موجوداً، قم بتعيين كلمة المرور والصلاحيات
+        user.set_password(password)
+        user.is_staff = True
+        user.is_superuser = True
+        user.is_active = True
+        user.save()
         
-        # تأكد من أنه يملك كل الصلاحيات
-        admin_user.is_staff = True
-        admin_user.is_superuser = True
-        admin_user.is_active = True
-        
-        # احفظ التغييرات
-        admin_user.save()
+        message = "created and password set" if created else "already existed and password has been reset"
         
         # أرجع رسالة نجاح واضحة
-        return HttpResponse(f"<h1>Success!</h1><p>Password for user 'admin' has been reset to: <strong>{new_password}</strong></p><p>You can now go to the login page.</p>")
+        return HttpResponse(f"<h1>Success!</h1><p>User 'admin' has been configured ({message}).</p><p>Password is now: <strong>{password}</strong></p><p>You can now go to the login page.</p>")
         
-    except User.DoesNotExist:
-        return HttpResponse("<h1>Error!</h1><p>User 'admin' not found. The createsuperuser command may have failed.</p>", status=404)
     except Exception as e:
         return HttpResponse(f"<h1>An unexpected error occurred:</h1><p>{e}</p>", status=500)
